@@ -5,35 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Velvet Studio</title>
     
-    <!-- PWA Config -->
+    <!-- --- MANIFESTO PWA EMBUTIDO (TÉCNICA SENIOR) --- -->
+    <!-- Isso remove o ícone do Chrome e define o app como Nativo -->
+    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Velvet%20Studio%22%2C%22short_name%22%3A%22Velvet%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23111827%22%2C%22theme_color%22%3A%22%23111827%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fimg.icons8.com%2Ffluency%2F480%2Fdrop-of-blood.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D' />
+
+    <!-- Configuração iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#111827">
-    <link rel="apple-touch-icon" href="https://img.icons8.com/color/480/rose.png">
-    <link rel="icon" type="image/png" href="https://img.icons8.com/color/96/rose.png">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/480/drop-of-blood.png"> <!-- Ícone Gota/Cera -->
 
-    <!-- Estilos e Core -->
+    <!-- Core -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 
     <style>
-        body { font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; background-color: #111827; }
         .font-serif { font-family: 'Playfair Display', serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
-        .slide-up { animation: slideUp 0.3s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        /* Safe Area para iPhone X+ */
+        /* Animações */
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .fade-out { animation: fadeOut 0.5s ease-in forwards; }
+        .slide-up { animation: slideUp 0.3s ease-out forwards; }
+        .pulse-slow { animation: pulse 3s infinite; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
+
         @supports (padding-bottom: env(safe-area-inset-bottom)) {
             .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased pb-24 select-none">
+<body class="text-gray-900 antialiased pb-24 select-none">
     
     <div id="root"></div>
 
@@ -41,14 +50,14 @@
         const { useState, useEffect } = React;
         const { createRoot } = ReactDOM;
 
-        // --- ÍCONES ---
+        // --- ÍCONES SVG ---
         const Icons = {
+            Logo: () => <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-rose-500"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>,
             Menu: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>,
             X: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 18 18"/></svg>,
             Calendar: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>,
             Clock: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-            Flame: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>,
-            RollOn: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>,
+            Flame: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>,RollOn: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>,
             Shield: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
             Back: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg>,
             User: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
@@ -57,7 +66,7 @@
         };
 
         // --- STORAGE ---
-        const DB_KEY = 'velvet_pwa_v4_fixed';
+        const DB_KEY = 'velvet_pwa_v5';
         
         const saveApp = (data) => {
             const list = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
@@ -77,6 +86,7 @@
             return list;
         };
 
+        // --- DADOS ---
         const SERVICES = [
             { id: 1, name: 'Virilha Total Velvet', price: 65, cat: 'Cera Quente', time: 30, best: true, desc: 'Técnica exclusiva com cera elástica.', img: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=600&auto=format&fit=crop' },
             { id: 2, name: 'Perna Inteira Soft', price: 55, cat: 'Roll-on', time: 35, best: true, desc: 'Tecnologia Roll-on para grandes áreas.', img: 'https://images.unsplash.com/photo-1519415387722-a1c3bbef716c?q=80&w=600&auto=format&fit=crop' },
@@ -84,7 +94,9 @@
             { id: 4, name: 'Meia Perna Express', price: 40, cat: 'Roll-on', time: 20, best: false, desc: 'Do joelho ao tornozelo.', img: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?q=80&w=600&auto=format&fit=crop' },
             { id: 5, name: 'Face Design & Buço', price: 30, cat: 'Cera Quente', time: 15, best: false, desc: 'Cera hipoalergênica facial.', img: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600&auto=format&fit=crop' },
             { id: 6, name: 'Protocolo Velvet Gold', price: 110, cat: 'Cera Quente', time: 70, best: true, desc: 'Completo.', img: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=600&auto=format&fit=crop' }
-        ];const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
+        ];
+
+        const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
             const base = "flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-transform active:scale-95 shadow-lg ";
             const styles = { 
                 primary: "bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-rose-200", 
@@ -94,7 +106,35 @@
             return <button onClick={onClick} className={base + styles[variant] + " " + className}>{children}</button>;
         };
 
-        function App() {
+        // --- TELA DE INTRODUÇÃO (SPLASH SCREEN) ---
+        const IntroScreen = ({ onFinish }) => {
+            const [visible, setVisible] = useState(true);
+
+            useEffect(() => {
+                const timer = setTimeout(() => {
+                    setVisible(false);
+                    setTimeout(onFinish, 500); // Tempo para o fade-out
+                }, 2500); // Duração da intro
+                return () => clearTimeout(timer);
+            }, []);
+
+            if (!visible) return <div className="fixed inset-0 z-[60] bg-gray-900 fade-out pointer-events-none"></div>;
+
+            return (
+                <div className="fixed inset-0 z-[60] bg-gray-900 flex flex-col items-center justify-center text-white">
+                    <div className="pulse-slow mb-6 bg-gray-800 p-6 rounded-full shadow-2xl border border-gray-700">
+                        <img src="https://img.icons8.com/fluency/96/drop-of-blood.png" alt="Velvet Logo" className="w-20 h-20" />
+                    </div>
+                    <h1 className="text-3xl font-light tracking-[0.2em] uppercase">Velvet</h1>
+                    <span className="text-rose-500 text-xs font-bold tracking-widest mt-2">STUDIO & SPA</span>
+                    <div className="absolute bottom-10 w-32 h-1 bg-gray-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-rose-500 animate-[width_2s_ease-out_forwards]" style={{width: '0%', animationName: 'loadingBar', animationDuration: '2.5s'}}></div>
+                    </div>
+                    <style>{`@keyframes loadingBar { 0% { width: 0% } 100% { width: 100% } }`}</style>
+                </div>
+            );
+        };function App() {
+            const [introFinished, setIntroFinished] = useState(false);
             const [view, setView] = useState('home');
             const [cat, setCat] = useState('Todos');
             const [sel, setSel] = useState(null);
@@ -103,58 +143,44 @@
             const [userName, setUserName] = useState('');
             const [apps, setApps] = useState([]);
             const [msg, setMsg] = useState(null);
-            const [loading, setLoading] = useState(true);
             const [expandedApp, setExpandedApp] = useState(null);
-            
-            // Estado para o Modal de Cancelamento
             const [cancelModal, setCancelModal] = useState({ open: false, id: null });
             const [cancelReason, setCancelReason] = useState('');
 
-            useEffect(() => {
-                setTimeout(() => { setApps(getApps()); setLoading(false); }, 500); 
-            }, []);
+            useEffect(() => { setApps(getApps()); }, []);
 
-            const notify = (txt) => { setMsg(txt); setTimeout(() => setMsg(null), 3000); };
+            const notify = (txt, type = 'success') => { 
+                setMsg({ text: txt, type }); 
+                setTimeout(() => setMsg(null), 3000); 
+            };
+            
             const fmtMoney = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
             const filtered = cat === 'Todos' ? SERVICES : SERVICES.filter(s => s.cat === cat);
 
             const confirmBooking = () => {
-                if(!userName.trim()) return notify("Por favor, digite seu nome!");
-                if(!date || !time) return notify("Escolha data e horário!");
+                if(!userName.trim()) return notify("Por favor, digite seu nome!", 'error');
+                if(!date || !time) return notify("Escolha data e horário!", 'error');
                 
-                setLoading(true);
-                setTimeout(() => {
-                    saveApp({ service: sel.name, price: sel.price, cat: sel.cat, date, time, clientName: userName });
-                    setApps(getApps()); setLoading(false);
-                    notify("Agendamento Confirmado!");
-                    setView('dash');
-                    setUserName(''); setDate(''); setTime('');
-                }, 800);
+                saveApp({ service: sel.name, price: sel.price, cat: sel.cat, date, time, clientName: userName });
+                setApps(getApps()); 
+                notify("Agendamento Confirmado!");
+                setView('dash');
+                setUserName(''); setDate(''); setTime('');
             };
 
-            // Abre o Modal de Cancelamento
-            const openCancelModal = (id) => {
-                setCancelReason(''); // Limpa o campo
-                setCancelModal({ open: true, id: id });
-            };
-
-            // Confirma o Cancelamento
             const confirmCancellation = () => {
-                if (!cancelReason.trim()) return notify("Informe o motivo!");
-                
+                if (!cancelReason.trim()) return notify("Informe o motivo!", 'error');
                 const updatedList = cancelApp(cancelModal.id, cancelReason);
                 setApps(updatedList);
-                setCancelModal({ open: false, id: null }); // Fecha modal
+                setCancelModal({ open: false, id: null });
                 notify("Cancelado com sucesso.");
             };
 
-            if(loading && apps.length === 0 && view !== 'home') {
-                 return <div className="min-h-screen flex items-center justify-center"><div className="w-10 h-10 border-4 border-rose-500 rounded-full border-t-transparent animate-spin"></div></div>;
-            }
+            if (!introFinished) return <IntroScreen onFinish={() => setIntroFinished(true)} />;
 
             return (
-                <div className="min-h-screen">
-                    {/* MODAL DE CANCELAMENTO (OVERLAY) */}
+                <div className="min-h-screen bg-gray-50">
+                    {/* MODAL CANCELAMENTO */}
                     {cancelModal.open && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade">
                             <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl slide-up">
@@ -162,23 +188,15 @@
                                     <div className="bg-red-100 p-2 rounded-full"><Icons.Alert /></div>
                                     <h3 className="font-bold text-lg">Cancelar Sessão</h3>
                                 </div>
-                                <p className="text-gray-500 text-sm mb-4">Para confirmar o cancelamento, por favor informe o motivo abaixo:</p>
-                                <textarea 
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none resize-none h-24 mb-4"
-                                    placeholder="Ex: Imprevisto de trabalho, doença..."
-                                    value={cancelReason}
-                                    onChange={(e) => setCancelReason(e.target.value)}
-                                    autoFocus
-                                ></textarea>
+                                <p className="text-gray-500 text-sm mb-4">Motivo do cancelamento:</p>
+                                <textarea className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none resize-none h-24 mb-4" placeholder="Ex: Imprevisto..." value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} autoFocus></textarea>
                                 <div className="flex gap-3">
-                                    <button onClick={() => setCancelModal({open: false, id: null})} className="flex-1 py-3 text-gray-500 font-bold bg-gray-100 rounded-xl hover:bg-gray-200">Voltar</button>
-                                    <button onClick={confirmCancellation} className="flex-1 py-3 text-white font-bold bg-red-500 rounded-xl hover:bg-red-600 shadow-lg shadow-red-200">Confirmar</button>
+                                    <button onClick={() => setCancelModal({open: false, id: null})} className="flex-1 py-3 text-gray-500 font-bold bg-gray-100 rounded-xl">Voltar</button>
+                                    <button onClick={confirmCancellation} className="flex-1 py-3 text-white font-bold bg-red-500 rounded-xl shadow-lg">Confirmar</button>
                                 </div>
                             </div>
                         </div>
-                    )}
-
-                    {view === 'home' && (
+                    )}{view === 'home' && (
                         <div className="fade-in pb-20">
                             <div className="relative h-[480px] bg-gray-900 overflow-hidden">
                                 <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=800&auto=format&fit=crop" className="absolute w-full h-full object-cover opacity-60" />
@@ -222,7 +240,10 @@
                                 </div>
                             </div>
                             <div className="fixed bottom-6 right-6 z-40">
-                                 <button onClick={() => setView('dash')} className="bg-gray-900 text-white p-4 rounded-full shadow-2xl flex items-center gap-2 font-bold text-sm"><Icons.Calendar /> Minha Agenda</button>
+                                 <button onClick={() => setView('dash')} className="bg-gray-900 text-white p-4 rounded-full shadow-2xl flex items-center gap-2 font-bold text-sm">
+                                    <Icons.Calendar /> Minha Agenda 
+                                    {apps.filter(a => a.status === 'active').length > 0 && <span className="bg-rose-500 w-2 h-2 rounded-full absolute top-3 right-3"></span>}
+                                 </button>
                             </div>
                         </div>
                     )}
@@ -251,7 +272,7 @@
                                         </div>
                                         <div><label className="text-xs font-bold text-gray-500 uppercase block mb-2">Data</label><input type="date" className="w-full bg-gray-100 rounded-xl p-3 font-bold text-gray-700 outline-none focus:ring-2 focus:ring-rose-500" value={date} onChange={e => setDate(e.target.value)} /></div>
                                         <div><label className="text-xs font-bold text-gray-500 uppercase block mb-2">Horário</label><input type="time" className="w-full bg-gray-100 rounded-xl p-3 font-bold text-gray-700 outline-none focus:ring-2 focus:ring-rose-500" value={time} onChange={e => setTime(e.target.value)} /></div>
-                                        <Button className="w-full py-4 mt-4" onClick={confirmBooking}>{loading ? 'Confirmando...' : 'Confirmar'}</Button>
+                                        <Button className="w-full py-4 mt-4" onClick={confirmBooking}>Confirmar</Button>
                                     </div>
                                 </div>
                             </div>
@@ -284,23 +305,19 @@
                                                     </div>
                                                     <div className={`text-gray-300 transition-transform ${expandedApp === app.id ? 'rotate-90' : ''}`}><Icons.Back /></div>
                                                 </div>
-                                                
                                                 {expandedApp === app.id && (
                                                     <div className="bg-gray-50 p-5 border-t border-gray-100 text-sm space-y-3 animate-fade">
                                                         <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-500">Cliente</span><span className="font-bold text-gray-800">{app.clientName}</span></div>
                                                         <div className="flex justify-between"><span className="text-gray-500">Data</span><span className="font-bold text-gray-800">{new Date(app.date).toLocaleDateString('pt-BR')}</span></div>
                                                         <div className="flex justify-between"><span className="text-gray-500">Hora</span><span className="font-bold text-gray-800">{app.time}</span></div>
-                                                        
                                                         {app.status === 'cancelled' ? (
                                                             <div className="mt-3 bg-red-50 p-3 rounded-lg border border-red-100">
-                                                                <span className="block text-xs font-bold text-red-500 uppercase mb-1">Motivo do Cancelamento:</span>
+                                                                <span className="block text-xs font-bold text-red-500 uppercase mb-1">Motivo:</span>
                                                                 <p className="text-red-700 italic">"{app.cancelReason}"</p>
                                                             </div>
                                                         ) : (
                                                             <div className="pt-3 mt-2 border-t border-gray-200">
-                                                                <button onClick={(e) => { e.stopPropagation(); openCancelModal(app.id); }} className="w-full py-3 text-red-500 font-bold bg-white border border-red-100 rounded-xl hover:bg-red-50 flex items-center justify-center gap-2">
-                                                                    <Icons.X /> Cancelar Agendamento
-                                                                </button>
+                                                                <button onClick={(e) => { e.stopPropagation(); setCancelModal({open: true, id: app.id}); }} className="w-full py-3 text-red-500 font-bold bg-white border border-red-100 rounded-xl hover:bg-red-50 flex items-center justify-center gap-2"><Icons.X /> Cancelar Agendamento</button>
                                                             </div>
                                                         )}
                                                     </div>
@@ -313,7 +330,7 @@
                         </div>
                     )}
 
-                    {msg && <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold text-sm flex items-center gap-2 animate-bounce"><Icons.Shield /> {msg}</div>}
+                    {msg && <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-2xl font-bold text-sm flex items-center gap-2 animate-bounce ${msg.type === 'error' ? 'bg-red-500 text-white' : 'bg-gray-900 text-white'}`}><Icons.Shield /> {msg.text}</div>}
                 </div>
             );
         }
